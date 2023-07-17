@@ -15,20 +15,20 @@ class Car(BaseModel):
     model: str
     year: int
 
-# Retrieve all cars
+# GET /cars - Retrieve all cars
 @app.get('/cars')
-def get_cars():
+def get_all_cars():
     cars = cars_collection.find()
     return list(cars)
 
-# Create a new car
+# POST /cars - Create a new car
 @app.post('/cars')
 def create_car(car: Car):
-    car_data = car.dict()
+    car_data = car.model_dump()
     cars_collection.insert_one(car_data)
-    return {'message': 'Car created successfully'}
+    return {'message': 'created a car'}
 
-# Get a specific car by id
+# GET /cars/{id} - Retrieve a specific car
 @app.get('/cars/{car_id}')
 def get_car(car_id: str):
     car = cars_collection.find_one({'id': car_id})
@@ -36,21 +36,21 @@ def get_car(car_id: str):
         return car
     raise HTTPException(status_code=404, detail='Car not found')
 
-# Update an existing car by id
+# PUT /cars/{id} - Update an existing car
 @app.put('/cars/{car_id}')
 def update_car(car_id: str, updated_car: Car):
-    car_data = updated_car.dict()
+    car_data = updated_car.model_dump()
     result = cars_collection.update_one({'id': car_id}, {'$set': car_data})
     if result.modified_count == 1:
-        return {'message': 'Car updated successfully'}
+        return {'message': 'updated car'}
     raise HTTPException(status_code=404, detail='Car not found')
 
-# Delete a specific car by id
+# DELETE /cars/{id} - Delete a specific car
 @app.delete('/cars/{car_id}')
 def delete_car(car_id: str):
     result = cars_collection.delete_one({'id': car_id})
     if result.deleted_count == 1:
-        return {'message': 'Car deleted successfully'}
+        return {'message': 'deleted car'}
     raise HTTPException(status_code=404, detail='Car not found')
 
 
