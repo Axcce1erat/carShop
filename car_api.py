@@ -25,9 +25,9 @@ def get_all_cars():
 # POST /cars - Create a new car
 @app.post('/cars')
 def create_car(car: Car):
-    car_data = car.dict()
+    car_data = car.model_dump()
     cars_collection.insert_one(car_data)
-    return {'message': 'Car created successfully'}
+    return {'message': 'created a car'}
 
 # GET /cars/{id} - Retrieve a specific car
 @app.get('/cars/{car_id}')
@@ -40,10 +40,10 @@ def get_car(car_id: str):
 # PUT /cars/{id} - Update an existing car
 @app.put('/cars/{car_id}')
 def update_car(car_id: str, updated_car: Car):
-    car_data = updated_car.dict()
+    car_data = updated_car.model_dump()
     result = cars_collection.update_one({'id': car_id}, {'$set': car_data})
     if result.modified_count == 1:
-        return {'message': 'Car updated successfully'}
+        return {'message': 'updated car'}
     raise HTTPException(status_code=404, detail='Car not found')
 
 # DELETE /cars/{id} - Delete a specific car
@@ -51,7 +51,7 @@ def update_car(car_id: str, updated_car: Car):
 def delete_car(car_id: str):
     result = cars_collection.delete_one({'id': car_id})
     if result.deleted_count == 1:
-        return {'message': 'Car deleted successfully'}
+        return {'message': 'deleted car'}
     raise HTTPException(status_code=404, detail='Car not found')
 
 
