@@ -10,7 +10,7 @@ database = client['car_repair_shop']
 cars_collection = database['cars']
 
 # Example data
-example_cars = [
+cars = [
     
     {
         'id': '1',
@@ -33,7 +33,7 @@ example_cars = [
 ]
 
 # Insert the example cars into the collection
-cars_collection.insert_many(example_cars)
+cars_collection.insert_many(cars)
 
 class Car(BaseModel):
     id: str
@@ -46,8 +46,6 @@ cursor = cars_collection.find()
 for car in cursor:
     print(car)
 
-# Clear all entries in the cars collection
-cars_collection.delete_many({})
 
 # Retrieve cars
 @app.get('/cars')
@@ -73,11 +71,18 @@ def get_car(car_id: str):
 # Update an existing car by id
 @app.put('/cars/{car_id}')
 def update_car(car_id: str, updated_car: Car):
-    car_data = updated_car.model_dump()
+    car_data = updated_car.dict()
+
+    @app.exception_handler(HTTPException)
+    def handle_exception(e):
+        return {'message': f'Error updating car: {e.detail}'}
+
     result = cars_collection.update_one({'id': car_id}, {'$set': car_data})
+
     if result.modified_count == 1:
         return {'message': 'updated car'}
-    raise HTTPException(status_code=404, detail='Car not found')
+
+    return handle_exception(e)
 
 # Delete a specific car by id
 @app.delete('/cars/{car_id}')
@@ -87,4 +92,5 @@ def delete_car(car_id: str):
         return {'message': 'deleted car'}
     raise HTTPException(status_code=404, detail='Car not found')
 
-
+# Clear all entries in the cars collection
+cars_collection.delete_many({})
