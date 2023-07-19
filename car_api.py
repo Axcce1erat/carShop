@@ -35,16 +35,19 @@ example_cars = [
 # Insert the example cars into the collection
 cars_collection.insert_many(example_cars)
 
-# Test if all cars from the collection are in
-cursor = cars_collection.find()
-for car in cursor:
-    print(car)
-
 class Car(BaseModel):
     id: str
     make: str
     model: str
     year: int
+
+# Test if all cars from the collection are in
+cursor = cars_collection.find()
+for car in cursor:
+    print(car)
+
+# Clear all entries in the cars collection
+cars_collection.delete_many({})
 
 # Retrieve cars
 @app.get('/cars')
