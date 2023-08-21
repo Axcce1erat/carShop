@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Car Repair Shop</title>
+    <style>
+        /* Add some basic styling */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        h1 {
+            text-align: center;
+        }
+        table {
+            border-collapse: collapse;
+            margin: 0 auto;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #ddd;
+        }
+        form {
+            margin: 0 auto;
+            width: 50%;
+        }
+        input[type="text"], input[type="number"] {
+            width: 100%;
+            padding: 12px 20px;
+            margin: 8px 0;
+            box-sizing: border-box;
+            border: 2px solid #ccc;
+            border-radius: 4px;
+        }
+        input[type="submit"] {
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+        }
+        input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <h1>Car Repair Shop</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Make</th>
+                <th>Model</th>
+                <th>Year</th>
+            </tr>
+        </thead>
+        <tbody id="car-table">
+            <!-- This will be populated with data from the API -->
+        </tbody>
+    </table>
+    <form id="add-car-form">
+        <h2>Add a new car</h2>
+        <label for="id">ID:</label>
+        <input type="text" id="id" name="id" required>
+        <label for="make">Make:</label>
+        <input type="text" id="make" name="make" required>
+        <label for="model">Model:</label>
+        <input type="text" id="model" name="model" required>
+        <label for="year">Year:</label>
+        <input type="number" id="year" name="year" required>
+        <input type="submit" value="Add Car">
+    </form>
+    <script>
+        // Fetch all cars from the API and populate the table
+        fetch('/cars')
+            .then(response => response.json())
+            .then(cars => {
+                const carTable = document.getElementById('car-table');
+                cars.forEach(car => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${car.id}</td>
+                        <td>${car.make}</td>
+                        <td>${car.model}</td>
+                        <td>${car.year}</td>
+                    `;
+                    carTable.appendChild(row);
+                });
+            });
+
+        // Add a new car to the API when the form is submitted
+        const addCarForm = document.getElementById('add-car-form');
+        addCarForm.addEventListener('submit', event => {
+            event.preventDefault();
+            const formData = new FormData(addCarForm);
+            const carData = {
+                id: formData.get('id'),
+                make: formData.get('make'),
+                model: formData.get('model'),
+                year: parseInt(formData.get('year'))
+            };
+            fetch('/cars', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(carData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Reload the page to show the new car in the table
+                location.reload();
+            });
+        });
+    </script>
+</body>
+</html>

@@ -51,7 +51,16 @@ for car in cursor:
 @app.get('/cars')
 def get_all_cars():
     cars = cars_collection.find()
-    return list(cars)
+    car_list = []
+    for car in cars:
+        car_dict = {
+            'id': str(car['id']),  # Convert ObjectId to string
+            'make': car['make'],
+            'model': car['model'],
+            'year': car['year']
+        }
+        car_list.append(car_dict)
+    return car_list
 
 #  Create a new car
 @app.post('/cars')
@@ -65,13 +74,19 @@ def create_car(car: Car):
 def get_car(car_id: str):
     car = cars_collection.find_one({'id': car_id})
     if car:
-        return car
+        car_dict = {
+            'id': str(car['id']),  # Convert ObjectId to string
+            'make': car['make'],
+            'model': car['model'],
+            'year': car['year']
+        }
+        return car_dict
     raise HTTPException(status_code=404, detail='Car not found')
 
 # Update an existing car by id
 @app.put('/cars/{car_id}')
 def update_car(car_id: str, updated_car: Car):
-    car_data = updated_car.dict()
+    car_data = updated_car.model_dump()
 
     @app.exception_handler(HTTPException)
     def handle_exception(e):

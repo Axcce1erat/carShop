@@ -1,6 +1,6 @@
 from fastapi.testclient import TestClient
-from car_api import app
-from car_api import Car
+from main import app
+from main import Car
 
 client = TestClient(app)  # Create a TestClient instance
 
